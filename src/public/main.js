@@ -44,7 +44,7 @@ const main = async () => {
       }
     }
 
-    let queuedCandidates = []
+    const queuedCandidates = []
     onCandidate(ws, async candidate => {
       if (!pc.remoteDescription) {
         queuedCandidates.push(candidate)
