@@ -10,12 +10,12 @@ module.exports = server =>
 
     process.stdout.write(`${n}: Creating new RTCPeerConnection\n`)
 
-    const pc = new RTCPeerConnection({
+    const peerConnection = new RTCPeerConnection({
       bundlePolicy: 'max-bundle',
       rtcpMuxPolicy: 'require',
     })
 
-    pc.onicecandidate = ({ candidate }) => {
+    peerConnection.onicecandidate = ({ candidate }) => {
       if (candidate) {
         process.stdout.write(`${n}: Sending ICE candidate\n`)
         ws.send(
@@ -27,27 +27,27 @@ module.exports = server =>
       }
     }
 
-    pc.ontrack = ({ track, streams }) => {
+    peerConnection.ontrack = ({ track, streams }) => {
       process.stdout.write(
         `${n}: Received ${track.kind} MediaStreamTrack with ID ${track.id}\n`,
       )
-      pc.addTrack(track, ...streams)
+      peerConnection.addTrack(track, ...streams)
     }
 
     let queuedCandidates = []
     onCandidate(ws, async candidate => {
-      if (!pc.remoteDescription) {
+      if (!peerConnection.remoteDescription) {
         queuedCandidates.push(candidate)
         return
       }
       process.stdout.write(`${n}: Adding ICE candidate\n`)
-      await pc.addIceCandidate(candidate)
+      await peerConnection.addIceCandidate(candidate)
       process.stdout.write(`${n}: Added ICE candidate\n`)
     })
 
     ws.once('close', () => {
       process.stdout.write(`${n}: Closing RTCPeerConnection\n`)
-      pc.close()
+      peerConnection.close()
     })
 
     try {
@@ -55,13 +55,13 @@ module.exports = server =>
       const offer = await getOffer(ws)
 
       process.stdout.write(`${n}: Received offer; setting remote description\n`)
-      await pc.setRemoteDescription(offer)
+      await peerConnection.setRemoteDescription(offer)
 
       process.stdout.write(`${n}: Set remote description; creating answer\n`)
-      const answer = await pc.createAnswer()
+      const answer = await peerConnection.createAnswer()
 
       process.stdout.write(`${n}: Created answer; setting local description\n`)
-      await pc.setLocalDescription(answer)
+      await peerConnection.setLocalDescription(answer)
 
       process.stdout.write(`${n}: Set local description; sending answer\n`)
       ws.send(JSON.stringify(answer))
@@ -69,7 +69,7 @@ module.exports = server =>
       await Promise.all(
         queuedCandidates.splice(0).map(async candidate => {
           process.stdout.write(`${n}: Adding ICE candidate\n`)
-          await pc.addIceCandidate(candidate)
+          await peerConnection.addIceCandidate(candidate)
           process.stdout.write(`${n}: Added ICE candidate\n`)
         }),
       )

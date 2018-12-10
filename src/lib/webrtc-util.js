@@ -44,6 +44,7 @@ const onCandidate = (ws, callback) => {
     try {
       const message = JSON.parse(data)
       if (message.type === 'candidate') {
+        // Interactive Connectivity Establishment
         const candidate = new RTCIceCandidate(message.candidate)
         callback(candidate)
         return

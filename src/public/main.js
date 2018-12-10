@@ -14,17 +14,19 @@ const main = async () => {
   })
 
   console.log('Creating RTCPeerConnection')
-  const pc = new RTCPeerConnection({
+
+  const peerConnection = new RTCPeerConnection({
     bundlePolicy: 'max-bundle',
     rtcpMuxPolicy: 'require',
   })
-  stream.getTracks().forEach(track => pc.addTrack(track, stream))
+
+  stream.getTracks().forEach(track => peerConnection.addTrack(track, stream))
 
   const cleanup = () => {
     console.log('Stopping MediaStreamTracks')
     stream.getTracks().forEach(track => track.stop())
     console.log('Closing RTCPeerConnection')
-    pc.close()
+    peerConnection.close()
   }
 
   try {
@@ -32,7 +34,7 @@ const main = async () => {
     await onOpen(ws)
     ws.onclose = cleanup
 
-    pc.onicecandidate = ({ candidate }) => {
+    peerConnection.onicecandidate = ({ candidate }) => {
       if (candidate) {
         console.log('Sending ICE candidate')
         ws.send(
@@ -46,29 +48,29 @@ const main = async () => {
 
     const queuedCandidates = []
     onCandidate(ws, async candidate => {
-      if (!pc.remoteDescription) {
+      if (!peerConnection.remoteDescription) {
         queuedCandidates.push(candidate)
         return
       }
       console.log('Adding ICE candidate')
-      await pc.addIceCandidate(candidate)
+      await peerConnection.addIceCandidate(candidate)
       console.log('Added ICE candidate')
     })
 
     const video = document.createElement('video')
     document.body.appendChild(video)
 
-    pc.ontrack = ({ track, streams }) => {
+    peerConnection.ontrack = ({ track, streams }) => {
       console.log(`Received ${track.kind} MediaStreamTrack with ID ${track.id}`)
       video.srcObject = streams[0]
       video.autoplay = true
     }
 
     console.log('Creating offer')
-    const offer = await pc.createOffer()
+    const offer = await peerConnection.createOffer()
 
     console.log('Created offer; setting local description')
-    await pc.setLocalDescription(offer)
+    await peerConnection.setLocalDescription(offer)
 
     console.log('Set local description; sending offer')
     ws.send(JSON.stringify(offer))
@@ -77,13 +79,13 @@ const main = async () => {
     const answer = await getAnswer(ws)
 
     console.log('Received answer; setting remote description')
-    await pc.setRemoteDescription(answer)
+    await peerConnection.setRemoteDescription(answer)
     console.log('Set remote description')
 
     await Promise.all(
       queuedCandidates.splice(0).map(async candidate => {
         console.log('Adding ICE candidate')
-        await pc.addIceCandidate(candidate)
+        await peerConnection.addIceCandidate(candidate)
         console.log('Added ICE candidate')
       }),
     )
