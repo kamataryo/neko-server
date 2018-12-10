@@ -1,5 +1,5 @@
 const { RTCPeerConnection } = require('wrtc')
-const { getAnswer, onCandidate } = require('../lib')
+const { getAnswer, onCandidate } = require('../lib/webrtc-util')
 
 const onOpen = ws =>
   new Promise((resolve, reject) => {
