@@ -10,13 +10,13 @@ const onOpen = ws =>
 const main = async () => {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: true
+    video: true,
   })
 
   console.log('Creating RTCPeerConnection')
   const pc = new RTCPeerConnection({
     bundlePolicy: 'max-bundle',
-    rtcpMuxPolicy: 'require'
+    rtcpMuxPolicy: 'require',
   })
   stream.getTracks().forEach(track => pc.addTrack(track, stream))
 
@@ -38,8 +38,8 @@ const main = async () => {
         ws.send(
           JSON.stringify({
             type: 'candidate',
-            candidate
-          })
+            candidate,
+          }),
         )
       }
     }
@@ -85,7 +85,7 @@ const main = async () => {
         console.log('Adding ICE candidate')
         await pc.addIceCandidate(candidate)
         console.log('Added ICE candidate')
-      })
+      }),
     )
   } catch (error) {
     cleanup()

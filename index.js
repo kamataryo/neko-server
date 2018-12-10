@@ -28,7 +28,7 @@ new Server({ server }).on('connection', async ws => {
 
   const pc = new RTCPeerConnection({
     bundlePolicy: 'max-bundle',
-    rtcpMuxPolicy: 'require'
+    rtcpMuxPolicy: 'require',
   })
 
   pc.onicecandidate = ({ candidate }) => {
@@ -37,15 +37,15 @@ new Server({ server }).on('connection', async ws => {
       ws.send(
         JSON.stringify({
           type: 'candidate',
-          candidate
-        })
+          candidate,
+        }),
       )
     }
   }
 
   pc.ontrack = ({ track, streams }) => {
     console.log(
-      `${n}: Received ${track.kind} MediaStreamTrack with ID ${track.id}`
+      `${n}: Received ${track.kind} MediaStreamTrack with ID ${track.id}`,
     )
     pc.addTrack(track, ...streams)
   }
@@ -87,7 +87,7 @@ new Server({ server }).on('connection', async ws => {
         console.log(`${n}: Adding ICE candidate`)
         await pc.addIceCandidate(candidate)
         console.log(`${n}: Added ICE candidate`)
-      })
+      }),
     )
   } catch (error) {
     console.error(error.stack || error.message || error)
