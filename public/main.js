@@ -1,17 +1,13 @@
-/* eslint no-cond-assign:0, no-console:0 */
-'use strict'
-
 const { RTCPeerConnection } = require('wrtc')
-const { getAnswer, onCandidate } = require('./loopback.common')
+const { getAnswer, onCandidate } = require('../lib')
 
-function onOpen(ws) {
-  return new Promise((resolve, reject) => {
+const onOpen = ws =>
+  new Promise((resolve, reject) => {
     ws.onopen = () => resolve()
     ws.onclose = () => reject(new Error('WebSocket closed'))
   })
-}
 
-async function main() {
+const main = async () => {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
     video: true
@@ -24,7 +20,7 @@ async function main() {
   })
   stream.getTracks().forEach(track => pc.addTrack(track, stream))
 
-  function cleanup() {
+  const cleanup = () => {
     console.log('Stopping MediaStreamTracks')
     stream.getTracks().forEach(track => track.stop())
     console.log('Closing RTCPeerConnection')

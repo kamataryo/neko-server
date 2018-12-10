@@ -1,6 +1,3 @@
-/* eslint no-cond-assign:0, no-console:0 */
-'use strict'
-
 const express = require('express')
 const browserify = require('browserify-middleware')
 const { createServer } = require('http')
@@ -8,16 +5,12 @@ const { join } = require('path')
 const { Server } = require('ws')
 
 const { RTCPeerConnection } = require('wrtc')
-const { getOffer, onCandidate } = require('./loopback.common')
+const { getOffer, onCandidate } = require('./lib')
 
 const app = express()
 
-app.get(
-  '/loopback.client.js',
-  browserify(join(__dirname, 'loopback.client.js'))
-)
-
-app.use(express.static(__dirname))
+app.get('/main.js', browserify(join(__dirname, 'public', 'main.js')))
+app.use(express.static(join(__dirname, 'public')))
 
 const server = createServer(app)
 
