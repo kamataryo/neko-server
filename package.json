@@ -12,7 +12,9 @@
   "scripts": {
     "lint": "eslint --cache --ext=js .",
     "format": "prettier-eslint ./*.js ./**/*.js --write",
-    "dev": "nodemon ./src/index.js"
+    "dev": "nodemon ./src/index.js",
+    "start": "forever start ./src/index.js",
+    "stop": "forever stop 0 ; killall -9 ffmpeg"
   },
   "devDependencies": {
     "eslint": "^5.10.0",
