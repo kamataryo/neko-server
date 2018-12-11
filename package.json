@@ -7,8 +7,7 @@
   "dependencies": {
     "browserify-middleware": "^8.1.1",
     "express": "^4.16.4",
-    "wrtc": "^0.3.2",
-    "ws": "^6.1.2"
+    "hls.js": "^0.11.0"
   },
   "scripts": {
     "lint": "eslint --cache --ext=js .",
